@@ -1,0 +1,31 @@
+ZegoQualitySDK时序图
+
+@startuml
+
+header ZegoQualitySDK时序图
+
+participant WebView as Web
+participant ZegoExpressSDK as E
+participant LogParser as Parser
+database SQLite as DB
+
+
+E -> E : 进入房间
+
+== 开始音视频服务 ==
+
+E -> Parser : 原始日志
+Parser -> Parser : 解析日志
+Parser -> Parser : 数据分类
+Parser -> DB : 数据入库
+
+== 结束音视频服务 ==
+
+Web -> DB : 发起数据查询
+activate DB
+DB --> Web : 返回数据
+deactivate DB
+Web -> Web : 展示数据图表
+
+
+@enduml
