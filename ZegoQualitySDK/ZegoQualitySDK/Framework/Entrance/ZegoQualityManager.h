@@ -22,8 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)unInit;
 
 /// 异步解析日志
-/// 在解析之前需要设置必要参数
-/// 需要在 `onRecvExperimentalAPI:` 回调方法中调用
+/// 需要在 ZegoExpressConfig 高级配置中打开
+/// @"allow_verbose_print_high_frequency_content":@"true",
+/// @"enable_callback_verbose":@"true"
+/// 然后在 `onRecvExperimentalAPI:` 回调方法中调用该方法解析日志
 /// @param log 日志文本
 + (void)parsingLog:(NSString *)log;
 
@@ -53,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param appVersion 应用版本号
 + (void)setAppVersion:(NSString *)appVersion;
 
-/// 设置评分页和质量报告页面的显示语言
+/// 设置评分页和质量报告页面的显示语言，默认展示中文
 /// @param languageType 中文 / 英文
 + (void)setLanguageType:(ZegoQualityLanguageType)languageType;
 

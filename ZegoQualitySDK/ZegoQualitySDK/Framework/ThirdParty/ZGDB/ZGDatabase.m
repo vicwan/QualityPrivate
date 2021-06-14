@@ -132,7 +132,7 @@ NS_ASSUME_NONNULL_END
         for (NSUInteger i = 0; i < 3; i++) {
             SInt32 component = [components[i] intValue];
             if (component > 15) {
-                NSLog(@"ZGDBVersion is invalid: Please use ZGDBUserVersion instead.");
+                ZegoQualityLog(@"ZGDBVersion is invalid: Please use ZGDBUserVersion instead.");
                 component = 15;
             }
             ZGDBVersionVal = ZGDBVersionVal << 4 | component;
@@ -192,7 +192,7 @@ NS_ASSUME_NONNULL_END
 
     int err = sqlite3_open([self sqlitePath], (sqlite3**)&_db );
     if(err != SQLITE_OK) {
-        NSLog(@"error opening!: %d", err);
+        ZegoQualityLog(@"error opening!: %d", err);
         return NO;
     }
     
@@ -226,7 +226,7 @@ NS_ASSUME_NONNULL_END
     
     int err = sqlite3_open_v2([self sqlitePath], (sqlite3**)&_db, flags, [vfsName UTF8String]);
     if(err != SQLITE_OK) {
-        NSLog(@"error opening!: %d", err);
+        ZegoQualityLog(@"error opening!: %d", err);
         return NO;
     }
     
@@ -239,7 +239,7 @@ NS_ASSUME_NONNULL_END
     
     return YES;
 #else
-    NSLog(@"openWithFlags requires SQLite 3.5");
+    ZegoQualityLog(@"openWithFlags requires SQLite 3.5");
     return NO;
 #endif
 }
@@ -265,7 +265,7 @@ NS_ASSUME_NONNULL_END
                 triedFinalizingOpenStatements = YES;
                 sqlite3_stmt *pStmt;
                 while ((pStmt = sqlite3_next_stmt(_db, nil)) !=0) {
-                    NSLog(@"Closing leaked statement");
+                    ZegoQualityLog(@"Closing leaked statement");
                     sqlite3_finalize(pStmt);
                     pStmt = 0x00;
                     retry = YES;
@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_END
             }
         }
         else if (SQLITE_OK != rc) {
-            NSLog(@"error closing!: %d", rc);
+            ZegoQualityLog(@"error closing!: %d", rc);
         }
     }
     while (retry);
@@ -310,7 +310,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
         int requestedSleepInMillseconds = (int) arc4random_uniform(50) + 50;
         int actualSleepInMilliseconds = sqlite3_sleep(requestedSleepInMillseconds);
         if (actualSleepInMilliseconds != requestedSleepInMillseconds) {
-            NSLog(@"WARNING: Requested sleep of %i milliseconds, but SQLite returned %i. Maybe SQLite wasn't built with HAVE_USLEEP=1?", requestedSleepInMillseconds, actualSleepInMilliseconds);
+            ZegoQualityLog(@"WARNING: Requested sleep of %i milliseconds, but SQLite returned %i. Maybe SQLite wasn't built with HAVE_USLEEP=1?", requestedSleepInMillseconds, actualSleepInMilliseconds);
         }
         return 1;
     }
@@ -344,15 +344,15 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
 // but for folks who don't bother noticing that the interface to ZGDatabase changed,
 // we'll still implement the method so they don't get suprise crashes
 - (int)busyRetryTimeout {
-    NSLog(@"%s:%d", __FUNCTION__, __LINE__);
-    NSLog(@"ZGDB: busyRetryTimeout no longer works, please use maxBusyRetryTimeInterval");
+    ZegoQualityLog(@"%s:%d", __FUNCTION__, __LINE__);
+    ZegoQualityLog(@"ZGDB: busyRetryTimeout no longer works, please use maxBusyRetryTimeInterval");
     return -1;
 }
 
 - (void)setBusyRetryTimeout:(int)i {
 #pragma unused(i)
-    NSLog(@"%s:%d", __FUNCTION__, __LINE__);
-    NSLog(@"ZGDB: setBusyRetryTimeout does nothing, please use setMaxBusyRetryTimeInterval:");
+    ZegoQualityLog(@"%s:%d", __FUNCTION__, __LINE__);
+    ZegoQualityLog(@"ZGDB: setBusyRetryTimeout does nothing, please use setMaxBusyRetryTimeInterval:");
 }
 
 #pragma mark Result set functions
@@ -410,7 +410,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
 - (void)setCachedStatement:(ZGStatement*)statement forQuery:(NSString*)query {
     NSParameterAssert(query);
     if (!query) {
-        NSLog(@"API misuse, -[ZGDatabase setCachedStatement:forQuery:] query must not be nil");
+        ZegoQualityLog(@"API misuse, -[ZGDatabase setCachedStatement:forQuery:] query must not be nil");
         return;
     }
     
@@ -446,8 +446,8 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
     int rc = sqlite3_rekey(_db, [keyData bytes], (int)[keyData length]);
     
     if (rc != SQLITE_OK) {
-        NSLog(@"error on rekey: %d", rc);
-        NSLog(@"%@", [self lastErrorMessage]);
+        ZegoQualityLog(@"error on rekey: %d", rc);
+        ZegoQualityLog(@"%@", [self lastErrorMessage]);
     }
     
     return (rc == SQLITE_OK);
@@ -525,7 +525,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
     ZGResultSet *rs = [self executeQuery:@"PRAGMA cipher_version"];
 
     if ([rs next]) {
-        NSLog(@"SQLCipher version: %@", rs.resultDictionary[@"cipher_version"]);
+        ZegoQualityLog(@"SQLCipher version: %@", rs.resultDictionary[@"cipher_version"]);
         
         [rs close];
         return YES;
@@ -543,7 +543,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
 }
 
 - (void)warnInUse {
-    NSLog(@"The ZGDatabase %@ is currently in use.", self);
+    ZegoQualityLog(@"The ZGDatabase %@ is currently in use.", self);
     
 #ifndef NS_BLOCK_ASSERTIONS
     if (_crashOnErrors) {
@@ -557,7 +557,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
     
     if (!_isOpen) {
         
-        NSLog(@"The ZGDatabase %@ is not open.", self);
+        ZegoQualityLog(@"The ZGDatabase %@ is not open.", self);
         
 #ifndef NS_BLOCK_ASSERTIONS
         if (_crashOnErrors) {
@@ -852,7 +852,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
     ZGResultSet *rs         = 0x00;
     
     if (_traceExecution && sql) {
-        NSLog(@"%@ executeQuery: %@", self, sql);
+        ZegoQualityLog(@"%@ executeQuery: %@", self, sql);
     }
     
     if (_shouldCacheStatements) {
@@ -866,9 +866,9 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
         
         if (SQLITE_OK != rc) {
             if (_logsErrors) {
-                NSLog(@"DB Error: %d \"%@\"", [self lastErrorCode], [self lastErrorMessage]);
-                NSLog(@"DB Query: %@", sql);
-                NSLog(@"DB Path: %@", _databasePath);
+                ZegoQualityLog(@"DB Error: %d \"%@\"", [self lastErrorCode], [self lastErrorMessage]);
+                ZegoQualityLog(@"DB Query: %@", sql);
+                ZegoQualityLog(@"DB Path: %@", _databasePath);
             }
             
             if (_crashOnErrors) {
@@ -932,7 +932,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
             NSString *parameterName = [[NSString alloc] initWithFormat:@":%@", dictionaryKey];
 
             if (_traceExecution) {
-                NSLog(@"%@ = %@", parameterName, [dictionaryArgs objectForKey:dictionaryKey]);
+                ZegoQualityLog(@"%@ = %@", parameterName, [dictionaryArgs objectForKey:dictionaryKey]);
             }
 
             // Get the index for the parameter name.
@@ -944,7 +944,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
                 // Standard binding from here.
                 int rc = [self bindObject:[dictionaryArgs objectForKey:dictionaryKey] toColumn:namedIdx inStatement:pStmt];
                 if (rc != SQLITE_OK) {
-                    NSLog(@"Error: unable to bind (%d, %s", rc, sqlite3_errmsg(_db));
+                    ZegoQualityLog(@"Error: unable to bind (%d, %s", rc, sqlite3_errmsg(_db));
                     sqlite3_finalize(pStmt);
                     pStmt = 0x00;
                     _isExecutingStatement = NO;
@@ -954,7 +954,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
                 idx++;
             }
             else {
-                NSLog(@"Could not find index for %@", dictionaryKey);
+                ZegoQualityLog(@"Could not find index for %@", dictionaryKey);
             }
         }
     }
@@ -973,10 +973,10 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
 
             if (_traceExecution) {
                 if ([obj isKindOfClass:[NSData class]]) {
-                    NSLog(@"data: %ld bytes", (unsigned long)[(NSData*)obj length]);
+                    ZegoQualityLog(@"data: %ld bytes", (unsigned long)[(NSData*)obj length]);
                 }
                 else {
-                    NSLog(@"obj: %@", obj);
+                    ZegoQualityLog(@"obj: %@", obj);
                 }
             }
 
@@ -984,7 +984,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
 
             int rc = [self bindObject:obj toColumn:idx inStatement:pStmt];
             if (rc != SQLITE_OK) {
-                NSLog(@"Error: unable to bind (%d, %s", rc, sqlite3_errmsg(_db));
+                ZegoQualityLog(@"Error: unable to bind (%d, %s", rc, sqlite3_errmsg(_db));
                 sqlite3_finalize(pStmt);
                 pStmt = 0x00;
                 _isExecutingStatement = NO;
@@ -994,7 +994,7 @@ static int ZGDBDatabaseBusyHandler(void *f, int count) {
     }
 
     if (idx != queryCount) {
-        NSLog(@"Error: the bind count is not correct for the # of variables (executeQuery)");
+        ZegoQualityLog(@"Error: the bind count is not correct for the # of variables (executeQuery)");
         sqlite3_finalize(pStmt);
         pStmt = 0x00;
         _isExecutingStatement = NO;
@@ -1131,7 +1131,7 @@ int ZGDBExecuteBulkSQLCallback(void *theBlockAsVoid, int columns, char **values,
     rc = sqlite3_exec([self sqliteHandle], [sql UTF8String], block ? ZGDBExecuteBulkSQLCallback : nil, (__bridge void *)(block), &errmsg);
     
     if (errmsg && [self logsErrors]) {
-        NSLog(@"Error inserting batch: %s", errmsg);
+        ZegoQualityLog(@"Error inserting batch: %s", errmsg);
     }
     if (errmsg) {
         sqlite3_free(errmsg);
@@ -1260,7 +1260,7 @@ static NSString *ZGDBEscapeSavePointName(NSString *savepointName) {
     return [self executeUpdate:sql error:outErr withArgumentsInArray:nil orDictionary:nil orVAList:nil];
 #else
     NSString *errorMessage = NSLocalizedStringFromTable(@"Save point functions require SQLite 3.7", @"ZGDB", nil);
-    if (self.logsErrors) NSLog(@"%@", errorMessage);
+    if (self.logsErrors) ZegoQualityLog(@"%@", errorMessage);
     return NO;
 #endif
 }
@@ -1274,7 +1274,7 @@ static NSString *ZGDBEscapeSavePointName(NSString *savepointName) {
     return [self executeUpdate:sql error:outErr withArgumentsInArray:nil orDictionary:nil orVAList:nil];
 #else
     NSString *errorMessage = NSLocalizedStringFromTable(@"Save point functions require SQLite 3.7", @"ZGDB", nil);
-    if (self.logsErrors) NSLog(@"%@", errorMessage);
+    if (self.logsErrors) ZegoQualityLog(@"%@", errorMessage);
     return NO;
 #endif
 }
@@ -1288,7 +1288,7 @@ static NSString *ZGDBEscapeSavePointName(NSString *savepointName) {
     return [self executeUpdate:sql error:outErr withArgumentsInArray:nil orDictionary:nil orVAList:nil];
 #else
     NSString *errorMessage = NSLocalizedStringFromTable(@"Save point functions require SQLite 3.7", @"ZGDB", nil);
-    if (self.logsErrors) NSLog(@"%@", errorMessage);
+    if (self.logsErrors) ZegoQualityLog(@"%@", errorMessage);
     return NO;
 #endif
 }
@@ -1320,7 +1320,7 @@ static NSString *ZGDBEscapeSavePointName(NSString *savepointName) {
     return err;
 #else
     NSString *errorMessage = NSLocalizedStringFromTable(@"Save point functions require SQLite 3.7", @"ZGDB", nil);
-    if (self.logsErrors) NSLog(@"%@", errorMessage);
+    if (self.logsErrors) ZegoQualityLog(@"%@", errorMessage);
     return [NSError errorWithDomain:@"ZGDatabase" code:0 userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
 #endif
 }
@@ -1339,14 +1339,14 @@ static NSString *ZGDBEscapeSavePointName(NSString *savepointName) {
 #if SQLITE_VERSION_NUMBER >= 3007006
     int err = sqlite3_wal_checkpoint_v2(_db, dbName, checkpointMode, logFrameCount, checkpointCount);
 #else
-    NSLog(@"sqlite3_wal_checkpoint_v2 unavailable before sqlite 3.7.6. Ignoring checkpoint mode: %d", mode);
+    ZegoQualityLog(@"sqlite3_wal_checkpoint_v2 unavailable before sqlite 3.7.6. Ignoring checkpoint mode: %d", mode);
     int err = sqlite3_wal_checkpoint(_db, dbName);
 #endif
     if(err != SQLITE_OK) {
         if (error) {
             *error = [self lastError];
         }
-        if (self.logsErrors) NSLog(@"%@", [self lastErrorMessage]);
+        if (self.logsErrors) ZegoQualityLog(@"%@", [self lastErrorMessage]);
         if (self.crashOnErrors) {
             NSAssert(false, @"%@", [self lastErrorMessage]);
             abort();

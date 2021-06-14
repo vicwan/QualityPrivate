@@ -162,7 +162,7 @@ typedef NS_ENUM(NSInteger, ZGDBTransaction) {
                 NSUInteger currentCount = [self->_databaseOutPool count] + [self->_databaseInPool count];
                 
                 if (currentCount >= self->_maximumNumberOfDatabasesToCreate) {
-                    NSLog(@"Maximum number of databases (%ld) has already been reached!", (long)currentCount);
+                    ZegoQualityLog(@"Maximum number of databases (%ld) has already been reached!", (long)currentCount);
                     return;
                 }
             }
@@ -194,7 +194,7 @@ typedef NS_ENUM(NSInteger, ZGDBTransaction) {
             }
         }
         else {
-            NSLog(@"Could not open up the database at path %@", self->_path);
+            ZegoQualityLog(@"Could not open up the database at path %@", self->_path);
             db = 0x00;
         }
     }];
@@ -327,7 +327,7 @@ typedef NS_ENUM(NSInteger, ZGDBTransaction) {
     return err;
 #else
     NSString *errorMessage = NSLocalizedStringFromTable(@"Save point functions require SQLite 3.7", @"ZGDB", nil);
-    if (self.logsErrors) NSLog(@"%@", errorMessage);
+    if (self.logsErrors) ZegoQualityLog(@"%@", errorMessage);
     return [NSError errorWithDomain:@"ZGDatabase" code:0 userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
 #endif
 }

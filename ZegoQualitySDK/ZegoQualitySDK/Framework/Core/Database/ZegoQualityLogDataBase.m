@@ -62,7 +62,7 @@
 //  self.dbQueue = dbQueue;
   
   BOOL open = [self.db open];
-  NSLog(@"QUALITY DB OPEN: %d", open);
+  ZegoQualityLog(@"QUALITY DB OPEN: %d", open);
   
   NSString *createUserEventSql =
   [NSString stringWithFormat:
@@ -72,7 +72,7 @@
    "room_id text,"
    "timestamp text,"
    "type text,"
-   "processing_time text,"
+   "processing_time real,"
    "stream_id text,"
    "error_code text"
   ")", kUserEventTableName];
@@ -144,7 +144,7 @@
                   userEvent.processing_time,
                   userEvent.stream_id,
                   userEvent.error_code];
-      NSLog(@"update user event result: %d", suc);
+      ZegoQualityLog(@"update user event result: %d", suc);
     }];
   });
 }
@@ -176,7 +176,7 @@
                   deviceInfo.memory_usage_app,
                   deviceInfo.memory_usage_sys,
                   deviceInfo.sys_version];
-      NSLog(@"update device info result: %d", suc);
+      ZegoQualityLog(@"update device info result: %d", suc);
     }];
   });
 }
@@ -214,7 +214,7 @@
                   streamQuality.video_break_rate,
                   streamQuality.audio_break_rate,
                   streamQuality.peer_to_peer_delay];
-      NSLog(@"update stream quality result: %d", suc);
+      ZegoQualityLog(@"update stream quality result: %d", suc);
     }];
   });
 }

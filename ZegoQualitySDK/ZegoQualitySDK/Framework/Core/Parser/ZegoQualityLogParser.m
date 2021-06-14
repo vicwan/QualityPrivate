@@ -6,26 +6,27 @@
 //  Copyright © 2021 zego. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "ZegoQualityLogParser.h"
 #import "ZegoQualityLogDataBase.h"
-#import <UIKit/UIKit.h>
-const NSString *ZegoPerformanceStatusUpdateTask = @"onPerformanceStatusUpdate ";
-const NSString *ZegostartPublishingStreamTask = @"startPublishingStream ";
-const NSString *ZegoStopPublishingStreamTask = @"StopPublishingStream ";
-//const NSString *ZegoStartPlayingStreamTask = @"StartPlayingStream ";
-const NSString *ZegoStopPlayingStreamTask = @"StopPlayingStream ";
-const NSString *ZegoEnableCameraTask = @"EnableCamera ";
-const NSString *ZegoEnableAudioCaptureDeviceTask = @"MuteMicrophone ";
-const NSString *ZegoPublisherQualityUpdateTask = @"onPublisherQualityUpdate ";
-const NSString *ZegoPlayerQualityUpdateTask = @"onPlayerQualityUpdate ";
-const NSString *ZegoLogoutRoomTask = @"LogoutRoom ";
+
+//NSString * const ZegoStartPlayingStreamTask           = @"StartPlayingStream ";
+NSString * const ZegoPerformanceStatusUpdateTask        = @"onPerformanceStatusUpdate ";
+NSString * const ZegostartPublishingStreamTask          = @"startPublishingStream ";
+NSString * const ZegoStopPublishingStreamTask           = @"StopPublishingStream ";
+NSString * const ZegoStopPlayingStreamTask              = @"StopPlayingStream ";
+NSString * const ZegoEnableCameraTask                   = @"EnableCamera ";
+NSString * const ZegoEnableAudioCaptureDeviceTask       = @"MuteMicrophone ";
+NSString * const ZegoPublisherQualityUpdateTask         = @"onPublisherQualityUpdate ";
+NSString * const ZegoPlayerQualityUpdateTask            = @"onPlayerQualityUpdate ";
+NSString * const ZegoLogoutRoomTask                     = @"LogoutRoom ";
 
 
 @interface ZegoQualityLogParser ()
+
 @property (nonatomic, copy) NSString *userId;
 @property (nonatomic, copy) NSString *roomId;
 @property (nonatomic, assign) NSTimeInterval loginSpeed;
-@property (nonatomic, strong) NSDictionary *playFirstFrameSpeedDic;
 @property (nonatomic, copy) NSString *publishStream;
 @property (nonatomic, copy) NSString *currentDeviceInfo;
 @property (nonatomic, strong) NSDateFormatter *dateFormat;
@@ -33,29 +34,18 @@ const NSString *ZegoLogoutRoomTask = @"LogoutRoom ";
 @property (nonatomic, strong) dispatch_queue_t dataHandleQue;
 @property (nonatomic, strong) NSString *deviceMemoryString;
 @property (nonatomic, strong) NSMutableCharacterSet *characterSet;
-
 @property (nonatomic, strong) ZegoQualityLogDataBase *qualityDB;
 
 @end
-@implementation ZegoQualityLogParser
-//static ZegoLogFilter *manager = nil;
-//
-//+ (instancetype)shareManager {
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        manager = [[ZegoLogFilter alloc] init];
-//
-//    });
-//    return manager;
-//}
 
+
+@implementation ZegoQualityLogParser
 
 - (instancetype)init {
   if (self = [super init]) {
     self.userId = @"";
     self.roomId = @"";
     self.loginSpeed = 0;
-    self.playFirstFrameSpeedDic = [NSMutableDictionary dictionary];
     self.characterSet = [NSMutableCharacterSet whitespaceAndNewlineCharacterSet];
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateStyle:NSDateFormatterMediumStyle];
@@ -81,7 +71,7 @@ const NSString *ZegoLogoutRoomTask = @"LogoutRoom ";
   }
   return _deviceMemoryString;
 }
-- (void)filterLogData:(NSString *)data {
+- (void)parse:(NSString *)data {
   if(data.length < 21) return;
   dispatch_async(self.dataHandleQue, ^{
     NSString *time = [self getLogTime:data];
@@ -185,35 +175,23 @@ const NSString *ZegoLogoutRoomTask = @"LogoutRoom ";
     }
     NSDictionary *muteCameraDic = [self getDataFromString:data specialTask:ZegoEnableCameraTask];
     if (muteCameraDic){
-      NSString *error_code = muteCameraDic[@"error_code"];
-      if ([muteCameraDic[@"enable"] isEqualToString:@"false"]) {
-        error_code = @"-1";
-      }
-      
       ZegoUserEventTableModel *model = [[ZegoUserEventTableModel alloc] init];
       model.user_id = self.userId;
       model.room_id = self.roomId;
       model.type = @"7";
       model.timestamp = time;
-      model.error_code = error_code;
+      model.error_code = muteCameraDic[@"error_code"];;
       [self.qualityDB executeUpdateWithUserEvent:model];
-      
       return;
     }
     NSDictionary *muteAudioDic = [self getDataFromString:data specialTask:ZegoEnableAudioCaptureDeviceTask];
     if (muteAudioDic){
-      
-      NSString *error_code = muteAudioDic[@"error_code"];
-      if ([muteAudioDic[@"mute"] isEqualToString:@"true"]) {
-        error_code = @"-1";
-      }
-      
       ZegoUserEventTableModel *model = [[ZegoUserEventTableModel alloc] init];
       model.user_id = self.userId;
       model.room_id = self.roomId;
       model.type = @"8";
       model.timestamp = time;
-      model.error_code = error_code;
+      model.error_code = muteAudioDic[@"error_code"];
       [self.qualityDB executeUpdateWithUserEvent:model];
       return;
     }
@@ -231,25 +209,25 @@ const NSString *ZegoLogoutRoomTask = @"LogoutRoom ";
   });
 }
 
-- (void)setupPublishStream:(NSString *)publishStream {
+- (void)setPublishStreamID:(NSString *)streamID {
   dispatch_async(self.dataHandleQue, ^{
-    self.publishStream = publishStream;
+    self.publishStream = streamID;
   });
 }
 
-- (void)setupUserID:(NSString *)userID {
+- (void)setUserID:(NSString *)userID {
   dispatch_async(self.dataHandleQue, ^{
     self.userId = userID;
   });
 }
 
-- (void)setupRoomID:(NSString *)roomID {
+- (void)setRoomID:(NSString *)roomID {
   dispatch_async(self.dataHandleQue, ^{
     self.roomId = roomID;
   });
 }
 
-- (void)setupLoginSpeed:(NSTimeInterval)speed {
+- (void)setLoginTimeConsuming:(NSTimeInterval)speed {
   dispatch_async(self.dataHandleQue, ^{
     self.loginSpeed = speed;
     ZegoUserEventTableModel *model = [[ZegoUserEventTableModel alloc] init];
@@ -264,7 +242,7 @@ const NSString *ZegoLogoutRoomTask = @"LogoutRoom ";
   });
 }
 
-- (void)setupPlayStream:(NSString *)streamId FirstFrameSpeed:(NSTimeInterval)speed {
+- (void)setFirstFrameRenderTimeConsuming:(NSTimeInterval)timeInterval forPlayerStream:(NSString *)streamID {
   dispatch_async(self.dataHandleQue, ^{
     ZegoUserEventTableModel *model = [[ZegoUserEventTableModel alloc] init];
     model.user_id = self.userId;
@@ -272,13 +250,13 @@ const NSString *ZegoLogoutRoomTask = @"LogoutRoom ";
     model.type = @"5";
     model.timestamp = [NSString stringWithFormat:@"%.0f",[[NSDate date] timeIntervalSince1970]];
     model.error_code = @"0";
-    model.stream_id = streamId;
-    model.processing_time = [NSString stringWithFormat:@"%.0f",speed * 1000];
+    model.stream_id = streamID;
+    model.processing_time = [NSString stringWithFormat:@"%.0f",timeInterval * 1000];
     [self.qualityDB executeUpdateWithUserEvent:model];
   });
 }
 
-- (NSDictionary *)getDataFromString:(NSString *)dataString specialTask:(const NSString *)task {
+- (NSDictionary *)getDataFromString:(NSString *)dataString specialTask:(NSString *)task {
   
   NSRange range = [dataString rangeOfString:task];
   if (range.length > 0) {
@@ -335,7 +313,7 @@ const NSString *ZegoLogoutRoomTask = @"LogoutRoom ";
       }
     }
   }
-  NSLog(@"=== %@",dic.description);
+  ZegoQualityLog(@"=== %@",dic.description);
   return dic.copy;
 }
 

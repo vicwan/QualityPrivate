@@ -49,6 +49,7 @@
 		8645537C2674EAC10086DC4B /* ZGDatabasePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 864553532674EAC10086DC4B /* ZGDatabasePool.h */; };
 		8645537D2674EAC10086DC4B /* ZegoQualityManager_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 864553542674EAC10086DC4B /* ZegoQualityManager_internal.h */; };
 		864553912675D90E0086DC4B /* dist in Resources */ = {isa = PBXBuildFile; fileRef = 864553902675D90E0086DC4B /* dist */; };
+		864553A926772F490086DC4B /* Global.pch in Headers */ = {isa = PBXBuildFile; fileRef = 864553A826772F450086DC4B /* Global.pch */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -96,6 +97,7 @@
 		864553532674EAC10086DC4B /* ZGDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZGDatabasePool.h; sourceTree = "<group>"; };
 		864553542674EAC10086DC4B /* ZegoQualityManager_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZegoQualityManager_internal.h; sourceTree = "<group>"; };
 		864553902675D90E0086DC4B /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dist; sourceTree = "<group>"; };
+		864553A826772F450086DC4B /* Global.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Global.pch; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +132,7 @@
 			children = (
 				864553252674EAC10086DC4B /* Framework */,
 				8645531E2674E9F30086DC4B /* Info.plist */,
+				864553A826772F450086DC4B /* Global.pch */,
 			);
 			path = ZegoQualitySDK;
 			sourceTree = "<group>";
@@ -137,10 +140,10 @@
 		864553252674EAC10086DC4B /* Framework */ = {
 			isa = PBXGroup;
 			children = (
-				8645538D2675D8CB0086DC4B /* Resources */,
 				8645538C2674EE930086DC4B /* Entrance */,
 				864553872674EDBB0086DC4B /* Core */,
 				864553412674EAC10086DC4B /* ThirdParty */,
+				8645538D2675D8CB0086DC4B /* Resources */,
 			);
 			path = Framework;
 			sourceTree = "<group>";
@@ -298,6 +301,7 @@
 				864553672674EAC10086DC4B /* ZegoQualityVCConfig.h in Headers */,
 				8645537D2674EAC10086DC4B /* ZegoQualityManager_internal.h in Headers */,
 				864553682674EAC10086DC4B /* ZegoQualityViewController.h in Headers */,
+				864553A926772F490086DC4B /* Global.pch in Headers */,
 				864553582674EAC10086DC4B /* ZegoQualityLogDataBase.h in Headers */,
 				8645536F2674EAC10086DC4B /* ZGClassInfo.h in Headers */,
 				8645536D2674EAC10086DC4B /* ZGModel.h in Headers */,
@@ -531,6 +535,8 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $SRCROOT/$PROJECT_NAME/Global.pch;
 				INFOPLIST_FILE = ZegoQualitySDK/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -538,6 +544,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_LDFLAGS = "-fembed-bitcode";
 				PRODUCT_BUNDLE_IDENTIFIER = im.zego.ZegoQualitySDK;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -554,6 +562,8 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $SRCROOT/$PROJECT_NAME/Global.pch;
 				INFOPLIST_FILE = ZegoQualitySDK/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -561,6 +571,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_LDFLAGS = "-fembed-bitcode";
 				PRODUCT_BUNDLE_IDENTIFIER = im.zego.ZegoQualitySDK;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

@@ -15,7 +15,7 @@
 
 @property (nonatomic, strong) ZegoQualityLogDataBase *qualityDB;
 @property (nonatomic, strong) ZegoQualityCalculator *qualityCalculator;
-@property (nonatomic, strong) ZegoQualityLogParser *logFilter;
+@property (nonatomic, strong) ZegoQualityLogParser *logParser;
 
 @end
 
@@ -53,17 +53,17 @@ static id _instance;
 }
 
 - (void)parsingLog:(NSString *)log {
-  [self.logFilter filterLogData:log];
+  [self.logParser parse:log];
 }
 
 - (void)setUserID:(NSString *)userID {
   _userID = userID;
-  [self.logFilter setupUserID:userID];
+  [self.logParser setUserID:userID];
 }
 
 - (void)setRoomID:(NSString *)roomID {
   _roomID = roomID;
-  [self.logFilter setupRoomID:roomID];
+  [self.logParser setRoomID:roomID];
 }
 
 - (void)setLoginOnStart {
@@ -72,7 +72,7 @@ static id _instance;
 
 - (void)setLoginOnFinish {
   NSTimeInterval loginTimeConsuming = [self.qualityCalculator timeIntervalOnLoginFinish];
-  [self.logFilter setupLoginSpeed:loginTimeConsuming];
+  [self.logParser setLoginTimeConsuming:loginTimeConsuming];
 }
 
 - (void)setPlayerStreamOnStart:(NSString *)streamID {
@@ -81,11 +81,11 @@ static id _instance;
 
 - (void)setPlayerStreamOnFirstFrame:(NSString *)streamID {
   NSTimeInterval firstFrameTimeConsuming = [self.qualityCalculator timeIntervalForPlayerStreamOnFirstFrame:streamID];
-  [self.logFilter setupPlayStream:streamID FirstFrameSpeed:firstFrameTimeConsuming];
+  [self.logParser setFirstFrameRenderTimeConsuming:firstFrameTimeConsuming forPlayerStream:streamID];
 }
 
 - (void)setPublishStreamID:(NSString *)streamID {
-  [self.logFilter setupPublishStream:streamID];
+  [self.logParser setPublishStreamID:streamID];
 }
 
 
@@ -104,11 +104,11 @@ static id _instance;
   return _qualityCalculator;
 }
 
-- (ZegoQualityLogParser *)logFilter {
-  if (!_logFilter) {
-    _logFilter = [[ZegoQualityLogParser alloc] init];
+- (ZegoQualityLogParser *)logParser {
+  if (!_logParser) {
+    _logParser = [[ZegoQualityLogParser alloc] init];
   }
-  return _logFilter;
+  return _logParser;
 }
 
 @end

@@ -90,7 +90,7 @@ static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey
         BOOL success = [_db open];
 #endif
         if (!success) {
-            NSLog(@"Could not create database queue for path %@", aPath);
+            ZegoQualityLog(@"Could not create database queue for path %@", aPath);
             ZGDBRelease(self);
             return 0x00;
         }
@@ -167,7 +167,7 @@ static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey
         BOOL success = [_db open];
 #endif
         if (!success) {
-            NSLog(@"ZGDatabaseQueue could not reopen database for path %@", _path);
+            ZegoQualityLog(@"ZGDatabaseQueue could not reopen database for path %@", _path);
             ZGDBRelease(_db);
             _db  = 0x00;
             return 0x00;
@@ -194,13 +194,13 @@ static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey
         block(db);
         
         if ([db hasOpenResultSets]) {
-            NSLog(@"Warning: there is at least one open result set around after performing [ZGDatabaseQueue inDatabase:]");
+            ZegoQualityLog(@"Warning: there is at least one open result set around after performing [ZGDatabaseQueue inDatabase:]");
             
 #if defined(DEBUG) && DEBUG
             NSSet *openSetCopy = ZGDBReturnAutoreleased([[db valueForKey:@"_openResultSets"] copy]);
             for (NSValue *rsInWrappedInATastyValueMeal in openSetCopy) {
                 ZGResultSet *rs = (ZGResultSet *)[rsInWrappedInATastyValueMeal pointerValue];
-                NSLog(@"query: '%@'", [rs query]);
+                ZegoQualityLog(@"query: '%@'", [rs query]);
             }
 #endif
         }
@@ -283,7 +283,7 @@ static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey
     return err;
 #else
     NSString *errorMessage = NSLocalizedStringFromTable(@"Save point functions require SQLite 3.7", @"ZGDB", nil);
-    if (_db.logsErrors) NSLog(@"%@", errorMessage);
+    if (_db.logsErrors) ZegoQualityLog(@"%@", errorMessage);
     return [NSError errorWithDomain:@"ZGDatabase" code:0 userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
 #endif
 }

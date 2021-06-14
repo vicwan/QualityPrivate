@@ -14,11 +14,8 @@
 @interface ZegoQualityViewController ()<WKScriptMessageHandler, WKNavigationDelegate>
 
 @property (nonatomic, strong) WKWebView *webView;
-
 @property (nonatomic, strong) ZegoQualityVCConfig *config;
 @property (nonatomic, strong) ZegoQualityLogWebBridge *webBridge;
-
-@property (nonatomic, strong) UIButton *closeBtn;
 
 @end
 
@@ -31,13 +28,6 @@
   return self;
 }
 
-- (ZegoQualityLogWebBridge *)webBridge {
-  if (!_webBridge) {
-    _webBridge = [[ZegoQualityLogWebBridge alloc] init];
-  }
-  return _webBridge;
-}
-
 - (void)viewDidLoad {
   [super viewDidLoad];
 
@@ -45,25 +35,8 @@
   [self loadWebResources];
 }
 
-- (void)setupUI {
-  [self setupWebView];
-  self.view.backgroundColor = UIColor.whiteColor;
-  if ([self isBeingPresented]) {
-    UIButton *closeBtn = [[UIButton alloc] init];
-    [closeBtn addTarget:self action:@selector(close) forControlEvents:UIControlEventTouchUpInside];
-    UIImage *xmark = [UIImage imageNamed:@"quality_web_back"];
-    [closeBtn setImage:xmark forState:UIControlStateNormal];
-    [self.view addSubview:closeBtn];
-    self.closeBtn = closeBtn;
-  }
-}
-
-- (void)close {
-  if (self.navigationController != nil) {
-    [self.navigationController popViewControllerAnimated:YES];
-  }else {
-    [self dismissViewControllerAnimated:YES completion:nil];
-  }
+- (void)viewWillLayoutSubviews {
+  [self.webView setFrame:self.view.bounds];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -80,33 +53,36 @@
   }
 }
 
-- (void)viewWillLayoutSubviews {
-  CGRect webViewFrame = CGRectMake(0, 50, CGRectGetWidth(self.view.bounds), CGRectGetHeight(self.view.bounds) - 50);
-  [self.webView setFrame:webViewFrame];
-
-  CGRect btnFrame = CGRectMake(10, 10, 44, 44);
-  [self.closeBtn setFrame:btnFrame];
+- (void)setupUI {
+  self.view.backgroundColor = UIColor.whiteColor;
+  [self setupWebView];
 }
 
+#pragma mark - WebView Setup
 - (void)setupWebView {
   WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
   [config.userContentController addScriptMessageHandler:self name:@"search"];
   [config.userContentController addScriptMessageHandler:self name:@"closePage"];
   
-  WKWebView *webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:config];
+  WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:config];
+  webView.scrollView.bounces = NO;
+  webView.scrollView.showsVerticalScrollIndicator = NO;
   [self.view addSubview:webView];
   self.webView = webView;
 }
 
 - (void)loadWebResources {
-//  NSBundle *bundle = [NSBundle bundleForClass:self.class];
-//  NSURL *baseURL = [bundle URLForResource:@"index" withExtension:@"html" subdirectory:@"dist"];
+  NSURL *requestURL = [self requestBundleResourceURL];
+  NSURLRequest *request = [NSURLRequest requestWithURL:requestURL];
+  [self.webView loadRequest:request];
+}
 
+- (NSURL *)requestLANTestURL {
   NSString *language = @"zh";
   if (self.config.languageType == ZegoQualityLanguageTypeEnglish) {
     language = @"en";
   }
-
+  
   NSURL *baseURL = [NSURL URLWithString:@"http://192.168.6.180:8080/"];
   NSString * path = @"/#/scoring/";
   NSString *params = [NSString stringWithFormat:
@@ -123,53 +99,52 @@
                       self.config.productName,
                       self.config.appVersion,
                       language];
-
-
+  
+  
   params = [params stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
   path = [path stringByAppendingString:params];
-
+  
   NSURL *requestURL = [NSURL URLWithString:path relativeToURL:baseURL];
-  NSURLRequest *request = [NSURLRequest requestWithURL:requestURL];
-  [self.webView loadRequest:request];
+  return requestURL;
 }
 
-//- (void)loadWebResources {
-//  NSBundle *bundle = [NSBundle bundleForClass:self.class];
-//  NSURL *baseURL = [bundle URLForResource:@"index" withExtension:@"html" subdirectory:@"dist"];
-//
-//  NSString *language = @"zh";
-//  if (self.config.languageType == ZegoQualityLanguageTypeEnglish) {
-//    language = @"en";
-//  }
-//
-//  NSString *params = [NSString stringWithFormat:
-//                      @"?platform=4"
-//                      "&room_id=%@"
-//                      "&uid=%@"
-//                      "&name=%@"
-//                      "&product=%@"
-//                      "&app_version_string=%@"
-//                      "&lang=%@",
-//                      self.config.roomID,
-//                      self.config.userID,
-//                      self.config.userName,
-//                      self.config.productName,
-//                      self.config.appVersion,
-//                      language];
-//
-//  params = [params stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
-//  params = [params stringByAppendingString:@"#scoring"];
-//  NSURL *requestURL = [NSURL URLWithString:params relativeToURL:baseURL];
-//  NSURLRequest *request = [NSURLRequest requestWithURL:requestURL];
-//  [self.webView loadRequest:request];
-//}
+- (NSURL *)requestBundleResourceURL {
+  NSBundle *bundle = [NSBundle bundleForClass:self.class];
+  NSURL *baseURL = [bundle URLForResource:@"index" withExtension:@"html" subdirectory:@"dist"];
+  
+  NSString *language = @"zh";
+  if (self.config.languageType == ZegoQualityLanguageTypeEnglish) {
+    language = @"en";
+  }
+  
+  NSString *params = [NSString stringWithFormat:
+                      @"?platform=4"
+                      "&room_id=%@"
+                      "&uid=%@"
+                      "&name=%@"
+                      "&product=%@"
+                      "&app_version_string=%@"
+                      "&lang=%@",
+                      self.config.roomID,
+                      self.config.userID,
+                      self.config.userName,
+                      self.config.productName,
+                      self.config.appVersion,
+                      language];
+  
+  params = [params stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
+  params = [params stringByAppendingString:@"#scoring"];
+  NSURL *requestURL = [NSURL URLWithString:params relativeToURL:baseURL];
+  return requestURL;
+}
 
+#pragma mark - JS Action
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
   if ([message.name isEqualToString:@"search"]) {
     NSDictionary *dict = message.body;
     [self searchWithDict:dict];
   }else if ([message.name isEqualToString:@"closePage"]) {
-    [self close];
+    [self closePage];
   }
 }
 
@@ -189,10 +164,19 @@
   NSString *js = [NSString stringWithFormat:@"quality_callback(%ld, %@)", (long)seq, dataJson];
   [self.webView evaluateJavaScript:js completionHandler:^(id _Nullable result, NSError * _Nullable error) {
     //回调结果
-//    NSLog(@"js result: %@", error);
+//    ZegoQualityLog(@"js result: %@", error);
   }];
 }
 
+- (void)closePage {
+  if (self.navigationController != nil) {
+    [self.navigationController popViewControllerAnimated:YES];
+  }else {
+    [self dismissViewControllerAnimated:YES completion:nil];
+  }
+}
+
+#pragma mark - Orientation
 - (BOOL)shouldAutorotate {
   return YES;
 }
@@ -203,6 +187,14 @@
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
   return UIInterfaceOrientationMaskPortrait;
+}
+
+#pragma mark - Lazy
+- (ZegoQualityLogWebBridge *)webBridge {
+  if (!_webBridge) {
+    _webBridge = [[ZegoQualityLogWebBridge alloc] init];
+  }
+  return _webBridge;
 }
 
 @end

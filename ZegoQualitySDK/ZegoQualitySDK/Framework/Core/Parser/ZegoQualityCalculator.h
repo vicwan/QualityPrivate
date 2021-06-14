@@ -12,9 +12,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZegoQualityCalculator : NSObject
 
+/**
+ * 计算房间登录时间
+ */
 - (void)setLoginOnStart;
 - (NSTimeInterval)timeIntervalOnLoginFinish;
 
+/**
+ * 计算拉流首帧渲染时间
+ */
 - (void)setPlayerStreamOnStart:(NSString *)streamID;
 - (NSTimeInterval)timeIntervalForPlayerStreamOnFirstFrame:(NSString *)streamID;
 
