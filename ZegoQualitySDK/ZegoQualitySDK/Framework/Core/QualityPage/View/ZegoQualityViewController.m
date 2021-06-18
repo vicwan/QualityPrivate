@@ -72,7 +72,11 @@
 }
 
 - (void)loadWebResources {
+#if DEBUG
+  NSURL *requestURL = [self requestLANTestURL];
+#else
   NSURL *requestURL = [self requestBundleResourceURL];
+#endif
   NSURLRequest *request = [NSURLRequest requestWithURL:requestURL];
   [self.webView loadRequest:request];
 }
@@ -83,7 +87,7 @@
     language = @"en";
   }
   
-  NSURL *baseURL = [NSURL URLWithString:@"http://192.168.6.180:8080/"];
+  NSURL *baseURL = [NSURL URLWithString:@"https://doc-appdemo-report.zego.im/"];
   NSString * path = @"/#/scoring/";
   NSString *params = [NSString stringWithFormat:
                       @"?platform=4"

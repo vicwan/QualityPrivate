@@ -10,7 +10,7 @@ participant LogParser as Parser
 database SQLite as DB
 
 
-E -> E : 进入房间
+E -> E : 登录房间
 
 == 开始音视频服务 ==
 
@@ -20,6 +20,7 @@ Parser -> Parser : 数据分类
 Parser -> DB : 数据入库
 
 == 结束音视频服务 ==
+E -> E : 登出房间
 
 Web -> DB : 发起数据查询
 activate DB
